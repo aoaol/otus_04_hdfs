@@ -1,7 +1,7 @@
 package example
 
 
-import java.io.{ BufferedReader, InputStreamReader }
+import java.io.{ BufferedReader, InputStreamReader, PrintWriter }
 
 import org.apache.hadoop.conf._
 import org.apache.hadoop.fs._
@@ -23,7 +23,13 @@ object Hello extends Greeting with App {
   prn( greeting )
 
   val conf = new Configuration()
+  conf.setBoolean("dfs.support.append", true);
+  conf.setBoolean("dfs.client.block.write.replace-datanode-on-failure.enable", false);
+  conf.set("fs.client.block.write.replace-datanode-on-failure.policy","NEVER")
+
   val fs = FileSystem.get( new URI("hdfs://localhost:9000"), conf)
+
+
 
   val outPath = new Path( outDir )
   if (! fs.exists( outPath))
@@ -43,6 +49,7 @@ object Hello extends Greeting with App {
     val inFiles = for( inFile <- fs.listStatus( new Path( inSubDirName ))
                         if inFile.isFile   &&   inFile.getLen > 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
       yield new Path( outSubDirName +"/"+ inFile.getPath.getName )
+     // todo: delete zero-length files!
      //prn( inFile.toString )
 
 
@@ -58,7 +65,8 @@ object Hello extends Greeting with App {
       val tempDestFilePath = new Path( outSubDirName +"/"+ tempDestConcatName )
       fs.rename( destFilePath, tempDestFilePath)
       inFiles.foreach( inf => fs.rename( new Path( inSubDirName +"/"+ inf.getName ), inf ))
-      prn( s"   after rename inFiles")
+      inFiles.foreach( inf => appendStringToFile( inf, "\n"))
+      prn( s"   after rename & append inFiles")
 
       //val inFilesWNL
       fs.concat( tempDestFilePath, inFiles)
@@ -68,12 +76,11 @@ object Hello extends Greeting with App {
     else
       println("--->   NO data files to merge.")
 
-
   }
 
 
-  //val filename = inDir + "/date=2020-12-03/part-0000.csv"
-  //val path = new Path( filename )
+
+
   //val stream : FSDataInputStream = fs.open( path )
   //val source = Source.fromInputStream( stream, "UTF-8")
   //for( str <- source.getLines() )
@@ -84,7 +91,7 @@ object Hello extends Greeting with App {
   //val bufferedReader  = BufferedReader( )
 
 
-  //stream.close()
+  //fileOutputStream.close()
   fs.close()
 
   prn(".. .. .. By")
@@ -94,6 +101,17 @@ object Hello extends Greeting with App {
     println(".. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. .. ")
     println( s )
   }
+
+  def appendStringToFile( file: Path, strToAppend: String) = {
+    val fs_append = fs.append( file )
+    val writer = new PrintWriter( fs_append )
+    writer.append( strToAppend )
+    writer.flush()
+    fs_append.hflush()
+    writer.close()
+    fs_append.close()
+  }
+
 }
 
 trait Greeting {
