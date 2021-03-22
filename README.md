@@ -28,10 +28,14 @@ ________________________
    l04___hdfs/otus_04_hdfs/hdfs_mrgscv/target/scala-2.13/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar
 ________________________
    Копирование jar в namenode:
+
    cd l04___hdfs/hadoop_course_homework/hw1
+
    cp ../../otus_04_hdfs/hdfs_mrgscv/target/scala-2.13/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar sample_data/
 
+________________________
    Запуск:
+
    docker exec namenode java -jar sample_data/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar 2>sample_data/hdfs_mrgcsv.log
 
 
