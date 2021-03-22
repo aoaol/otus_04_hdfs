@@ -39,36 +39,43 @@ object Hello extends Greeting with App {
   for( inSubDir <- fs.listStatus( new Path( inDir )) if inSubDir.isDirectory) {
     prn( s"subDir: ${inSubDir.getPath.getName}")
     val outSubDirName = s"$outDir/${inSubDir.getPath.getName}"
+    val outSubDirNameD = outSubDirName + "/"
     val outSubDirPath = new Path( outSubDirName )
+
     if (! fs.exists( outSubDirPath ))
         fs.mkdirs( outSubDirPath )
 
-    val destFiles = for( destFile <- fs.listStatus( new Path( outSubDirName ))   if destFile.isFile)    yield new Path( outSubDirName +"/"+ destFile.getPath.getName )
-
     val inSubDirName = s"$inDir/${inSubDir.getPath.getName}"
-    val inFiles = for( inFile <- fs.listStatus( new Path( inSubDirName ))
-                        if inFile.isFile   &&   inFile.getLen > 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
-      yield new Path( outSubDirName +"/"+ inFile.getPath.getName )
-     // todo: delete zero-length files!
-     //prn( inFile.toString )
+    val inSubDirNameD = inSubDirName + "/"
+    val inFilesStatus = fs.listStatus( new Path( inSubDirName ))
 
+    for( inFile <- inFilesStatus   if inFile.isFile   &&   inFile.getLen == 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
+      fs.delete( new Path( inSubDirNameD + inFile.getPath.getName), false)
+
+    var inFiles = for( inFile <- inFilesStatus    if inFile.isFile   &&   inFile.getLen > 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
+                  yield new Path( outSubDirNameD + inFile.getPath.getName )
 
     if (inFiles.nonEmpty) {
       inFiles.foreach( x => prn( s"   src file:  ${x.getName}" ))
 
-      val destFilePath = new Path( s"$outSubDirName/" + (if (destFiles.nonEmpty)  destFiles(0).getName else inFiles(0).getName) )
+      val tempDestFilePath = new Path( outSubDirNameD + tempDestConcatName )
+      val destFiles = for( destFile <- fs.listStatus( new Path( outSubDirName ))   if destFile.isFile)    yield new Path( outSubDirNameD + destFile.getPath.getName )
+      val destFilePath = new Path( outSubDirNameD + (if (destFiles.nonEmpty)  destFiles(0).getName else inFiles(0).getName) )
       prn( s"   dest file: ${destFilePath.getName}")
 
-      if (! fs.exists( destFilePath ))
-        fs.createNewFile( destFilePath )
-
-      val tempDestFilePath = new Path( outSubDirName +"/"+ tempDestConcatName )
-      fs.rename( destFilePath, tempDestFilePath)
-      inFiles.foreach( inf => fs.rename( new Path( inSubDirName +"/"+ inf.getName ), inf ))
-      inFiles.foreach( inf => appendStringToFile( inf, "\n"))
+      if (destFiles.nonEmpty) {
+        fs.rename( destFilePath, tempDestFilePath)
+        inFiles.foreach( inf => fs.rename( new Path( inSubDirNameD + inf.getName ), inf ))
+        inFiles.foreach( inf => appendStringToFile( inf, "\n"))
+      }
+      else {
+        inFiles.foreach( inf => fs.rename( new Path( inSubDirNameD + inf.getName ), inf ))
+        inFiles.foreach( inf => appendStringToFile( inf, "\n"))
+        fs.rename( destFilePath, tempDestFilePath)
+        inFiles = inFiles.drop( 1 )
+      }
       prn( s"   after rename & append inFiles")
 
-      //val inFilesWNL
       fs.concat( tempDestFilePath, inFiles)
 
       fs.rename( tempDestFilePath, destFilePath )
@@ -80,18 +87,6 @@ object Hello extends Greeting with App {
 
 
 
-
-  //val stream : FSDataInputStream = fs.open( path )
-  //val source = Source.fromInputStream( stream, "UTF-8")
-  //for( str <- source.getLines() )
-  //  prn(s" from $filename: $str")
-
-  // LazyList.cons(stream.read, LazyList.continually( stream.read))
-  //val br = new BufferedReader( new InputStreamReader( i ));
-  //val bufferedReader  = BufferedReader( )
-
-
-  //fileOutputStream.close()
   fs.close()
 
   prn(".. .. .. By")
