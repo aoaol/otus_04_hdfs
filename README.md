@@ -3,12 +3,13 @@
 Инструкция по проверке домашнего задания
 
 1. Подготовить кластер и данные: 
-   * Развернуть репозиторий Домашняя работа "Знакомство с HDFS" в некую начальную папку (например, в l04___hdfs)
+     Развернуть репозиторий Домашняя работа "Знакомство с HDFS" в некую начальную папку (например, в l04___hdfs)
      https://github.com/Gorini4/hadoop_course_homework/tree/master/hw1
-   * Выполнить пункты "Подготовка инфраструктуры", "Подготовка данных"
+
+     Выполнить пункты "Подготовка инфраструктуры", "Подготовка данных"
 
 2. Развернуть репозиторий с проектом: https://github.com/aoaol/otus_04_hdfs в ту же папку (условно l04___hdfs)
-   * Собрать jar, находясь в папке l04___hdfs/otus_04_hdfs/:
+     Собрать jar, находясь в папке l04___hdfs/otus_04_hdfs/:
      cd hdfs_mrgscv
      sbt assembly
 
@@ -16,11 +17,11 @@
    l04___hdfs/hadoop_course_homework/hw1   - работающий докер инстанс кластера
    l04___hdfs/otus_04_hdfs/hdfs_mrgscv/target/scala-2.13/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar
 
-   * Копирование jar в namenode:
+   Копирование jar в namenode:
    cd l04___hdfs/hadoop_course_homework/hw1
    cp ../../otus_04_hdfs/hdfs_mrgscv/target/scala-2.13/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar sample_data/
 
-   * Запуск:
+   Запуск:
    docker exec namenode java -jar sample_data/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar 2>sample_data/hdfs_mrgcsv.log
 
 
