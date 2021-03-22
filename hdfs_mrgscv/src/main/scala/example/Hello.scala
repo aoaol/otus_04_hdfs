@@ -16,6 +16,7 @@ object Hello extends Greeting with App {
   prn( greeting )
 
   val conf = new Configuration()
+  // Enabling append().
   conf.setBoolean("dfs.support.append", true);
   conf.setBoolean("dfs.client.block.write.replace-datanode-on-failure.enable", false);
   conf.set("fs.client.block.write.replace-datanode-on-failure.policy","NEVER")
@@ -40,9 +41,11 @@ object Hello extends Greeting with App {
     val inSubDirNameD = inSubDirName + "/"
     val inFilesStatus = fs.listStatus( new Path( inSubDirName ))
 
+    // Deleting new empty data files.
     for( inFile <- inFilesStatus   if inFile.isFile   &&   inFile.getLen == 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
       fs.delete( new Path( inSubDirNameD + inFile.getPath.getName), false)
 
+    // Collecting new data files
     var inFiles = for( inFile <- inFilesStatus    if inFile.isFile   &&   inFile.getLen > 0   &&   inFile.getPath.getName.endsWith( dataFileExtension ))
                   yield new Path( outSubDirNameD + inFile.getPath.getName )
 
@@ -55,11 +58,15 @@ object Hello extends Greeting with App {
       prn( s"   dest file: ${destFilePath.getName}")
 
       if (destFiles.nonEmpty) {
+        // An accumulator file (in ods/...) exists.
+        // Renaming the accumulator file to avoid name collision with new files.
+
         fs.rename( destFilePath, tempDestFilePath)
         inFiles.foreach( inf => fs.rename( new Path( inSubDirNameD + inf.getName ), inf ))
         inFiles.foreach( inf => appendStringToFile( inf, "\n"))
       }
       else {
+        // Accumulator file does not exist - using the first new data file as an accumulator.
         inFiles.foreach( inf => fs.rename( new Path( inSubDirNameD + inf.getName ), inf ))
         inFiles.foreach( inf => appendStringToFile( inf, "\n"))
         fs.rename( destFilePath, tempDestFilePath)
