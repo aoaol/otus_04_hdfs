@@ -2,18 +2,18 @@
 
 Инструкция по проверке домашнего задания
 
-1. Подготовить кластер и данные: 
-     Развернуть репозиторий Домашняя работа "Знакомство с HDFS" в некую начальную папку (например, в l04___hdfs)
-     https://github.com/Gorini4/hadoop_course_homework/tree/master/hw1
+Подготовить кластер и данные: 
+Развернуть репозиторий Домашняя работа "Знакомство с HDFS" в некую начальную папку (например, в l04___hdfs)
+  https://github.com/Gorini4/hadoop_course_homework/tree/master/hw1
 
-     Выполнить пункты "Подготовка инфраструктуры", "Подготовка данных"
+Выполнить пункты "Подготовка инфраструктуры", "Подготовка данных"
 
-2. Развернуть репозиторий с проектом: https://github.com/aoaol/otus_04_hdfs в ту же папку (условно l04___hdfs)
-     Собрать jar, находясь в папке l04___hdfs/otus_04_hdfs/:
-     cd hdfs_mrgscv
-     sbt assembly
+Развернуть репозиторий с проектом: https://github.com/aoaol/otus_04_hdfs в ту же папку (условно l04___hdfs)
+Собрать jar, находясь в папке l04___hdfs/otus_04_hdfs/:
+cd hdfs_mrgscv
+sbt assembly
 
-3. Должны получиться (в случае начальной папки l04___hdfs) такие объекты:
+Должны получиться (в случае начальной папки l04___hdfs) такие объекты:
    l04___hdfs/hadoop_course_homework/hw1   - работающий докер инстанс кластера
    l04___hdfs/otus_04_hdfs/hdfs_mrgscv/target/scala-2.13/hdfs_mrgscv-assembly-0.1.0-SNAPSHOT.jar
 
