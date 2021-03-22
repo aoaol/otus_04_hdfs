@@ -1,17 +1,10 @@
 package example
 
-
 import java.io.{ BufferedReader, InputStreamReader, PrintWriter }
-
 import org.apache.hadoop.conf._
 import org.apache.hadoop.fs._
 import java.net.URI
-
 import org.apache.log4j.BasicConfigurator
-
-import scala.collection.mutable.ListBuffer
-import scala.io.Source
-
 
 object Hello extends Greeting with App {
   val outDir = "/ods"
@@ -28,8 +21,6 @@ object Hello extends Greeting with App {
   conf.set("fs.client.block.write.replace-datanode-on-failure.policy","NEVER")
 
   val fs = FileSystem.get( new URI("hdfs://localhost:9000"), conf)
-
-
 
   val outPath = new Path( outDir )
   if (! fs.exists( outPath))
@@ -82,13 +73,9 @@ object Hello extends Greeting with App {
     }
     else
       println("--->   NO data files to merge.")
-
   }
 
-
-
   fs.close()
-
   prn(".. .. .. By")
 
 
@@ -106,7 +93,6 @@ object Hello extends Greeting with App {
     writer.close()
     fs_append.close()
   }
-
 }
 
 trait Greeting {
